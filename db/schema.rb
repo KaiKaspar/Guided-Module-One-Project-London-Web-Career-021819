@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20190304210628) do
+ActiveRecord::Schema.define(version: 20190305131315) do
 
   create_table "actors", force: :cascade do |t|
     t.string  "name"
@@ -27,7 +27,7 @@ ActiveRecord::Schema.define(version: 20190304210628) do
     t.string  "title"
     t.string  "genre"
     t.integer "release_date"
-    t.string  "review"
+    t.string  "plot"
   end
 
 end

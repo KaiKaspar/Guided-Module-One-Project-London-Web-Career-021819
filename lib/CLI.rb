@@ -2,7 +2,23 @@ require 'rest-client'
 require 'json'
 require 'rainbow'
 
+require 'rest-client'
+require 'json'
+
+url = "http://www.omdbapi.com/?i=tt3896198&apikey=dc2f1dca"
+response = RestClient.get(url)
+response_hash = JSON.parse(response)
+
+
 class CommandLine
+  def json_url
+    puts "Type Name...."
+    name = gets.chomp
+    search_name = name.sub(" ", "+")
+    url = "http://www.omdbapi.com/?t=#{search_name}&apikey=dc2f1dca"
+    response = RestClient.get(url)
+    response_hash = JSON.parse(response)
+  end
 
   def greet
     puts Rainbow("
@@ -25,9 +41,14 @@ class CommandLine
     find_movie = gets.chomp
   end
 
-  def find_movie(name)
-    Movie.find_by(title: name)
+  def add_movie
+    movie_hash = json_url
+    # binding.pry
+    Movie.create(title: movie_hash["Title"], genre: movie_hash["Genre"], release_date: movie_hash["Year"], plot: movie_hash["Plot"])
   end
+  # def find_movie(name)
+  #   Movie.find_by(title: name)
+  # end
 
   def run
     greet
@@ -37,13 +58,23 @@ class CommandLine
     puts Rainbow(x.review).white.bright
   end
 
-  def find_actors(movie)
-    movies.actors
+  def all_movies_with_actors
+    @all = all_movies_with_actors
+    @all.each do |title, actors|
+      puts "#{title}; #{actors}"
+    end
+    @all
   end
 
-  def show_actors(actors)
-    actors.each do |actor|
-      find_actors
+  def find_movies_for_actor(actor)
+    actor_movies = all_movies_with_actors.select do |title, name|
+      name.split(", ") == actor
+    end
+  end
+
+  def find_actors_for_movie(movie)
+    movie_actors = find_actors_for_movie.select do |title, name|
+      name.split(", ") == actor
     end
   end
 end
