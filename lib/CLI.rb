@@ -19,6 +19,19 @@ class CommandLine
     response_hash = JSON.parse(response)
   end
 
+  def return_to_menu
+    puts Rainbow("Would you like to return to the menu? type 'y' for yes or 'n' for no.").white.bright
+    answer = gets.chomp
+          # binding.pry
+    if answer.downcase == "y"
+      menu
+      menu_choice
+    else
+      # binding.pry
+      abort
+    end
+  end
+
   def greet
     puts Rainbow("
               ██╗    ██╗███████╗██╗      ██████╗ ██████╗ ███╗   ███╗███████╗
@@ -58,11 +71,9 @@ class CommandLine
     when "5"
       quiz_genre
     when "6"
-        #Todo
-      puts "Currently not availiable"
+        abort
     else puts "Invalid please try again"
-      menu
-      menu_choice
+      return_to_menu
     end
   end
 
@@ -82,6 +93,7 @@ class CommandLine
   def find_or_create(input)
     movie_hash = json_url(input)
     Movie.find_or_create_by(title: movie_hash["Title"], genre: movie_hash["Genre"], release_date: movie_hash["Year"], plot: movie_hash["Plot"], all_actors_names: movie_hash["Actors"])
+    end
   end
 
   def run
@@ -91,6 +103,7 @@ class CommandLine
     puts Rainbow("GENRE: " + x.genre).cyan.bright
     puts Rainbow(x.plot).white.bright
     puts Rainbow("Starring: " + x.all_actors_names).magenta.bright
+    return_to_menu
   end
 
 
@@ -186,11 +199,13 @@ class CommandLine
     end
     if counter == 5
     puts Rainbow("You need to get out more! You scored #{counter}/5").green.bright
-  elsif counter > 2 && counter < 4
+  elsif counter > 2 && counter < 5
     puts Rainbow("You're on the way to being an expert. You scored #{counter}/5").orange.bright
   else
     puts Rainbow("Terrible! You need to spend more time on our database! You scored #{counter}/5").red.bright
+
   end
+  return_to_menu
   end
 
   def action_quiz
@@ -221,7 +236,7 @@ class CommandLine
                                                                  else
                                                                    puts Rainbow("Wrong").red.bright
                                                                  end
-                                                                 puts Rainbow("Who is the cop battling with terrorists in 'Die Hard'?").white.bright
+                                                                 puts Rainbow("Who plays the cop battling with terrorists in 'Die Hard'?").white.bright
                                                                  user_input = gets.chomp
                                                                  if user_input.downcase == "bruce willis"
                                                                    puts Rainbow("Correct").green.bright
@@ -247,11 +262,12 @@ class CommandLine
                                                                  end
                                                                  if counter == 5
                                                                  puts Rainbow("You need to get out more! You scored #{counter}/5").green.bright
-                                                               elsif counter > 2 && counter < 4
+                                                               elsif counter > 2 && counter < 5
                                                                  puts Rainbow("You're on the way to being an expert. You scored #{counter}/5").orange.bright
                                                                else
                                                                  puts Rainbow("Terrible! You need to spend more time on our database! You scored #{counter}/5").red.bright
                                                                end
+                                                               return_to_menu
   end
   def sci_fi_quiz
     puts Rainbow("
@@ -310,11 +326,12 @@ class CommandLine
                                                                               end
                                                                               if counter == 5
                                                                               puts Rainbow("You need to get out more! You scored #{counter}/5").green.bright
-                                                                            elsif counter > 2 && counter < 4
+                                                                            elsif counter > 2 && counter < 5
                                                                               puts Rainbow("You're on the way to being an expert. You scored #{counter}/5").orange.bright
                                                                             else
                                                                               puts Rainbow("Terrible! You need to spend more time on our database! You scored #{counter}/5").red.bright
                                                                             end
+                                                                            return_to_menu
   end
   def comedy_quiz
     puts Rainbow("
@@ -369,11 +386,12 @@ class CommandLine
                                                 end
                                                 if counter == 5
                                                 puts Rainbow("You need to get out more! You scored #{counter}/5").green.bright
-                                              elsif counter > 2 && counter < 4
+                                              elsif counter > 2 && counter < 5
                                                 puts Rainbow("You're on the way to being an expert. You scored #{counter}/5").orange.bright
                                               else
                                                 puts Rainbow("Terrible! You need to spend more time on our database! You scored #{counter}/5").red.bright
                                               end
+                                              return_to_menu
   end
 
   def all_quiz
@@ -393,33 +411,33 @@ class CommandLine
      else
        puts Rainbow("Wrong").red.bright
      end
-     puts Rainbow("What movie does a burned madman come from the grave to kill with long sharp 'claws'?").white.bright
+     puts Rainbow("How many James Bond movies are there?").white.bright
      user_input = gets.chomp
-     if user_input.downcase == "a nightmare on elm street"
+     if user_input.downcase == "26"
        puts Rainbow("Correct").green.bright
        counter += 1
      else
        puts Rainbow("Wrong").red.bright
      end
-     puts Rainbow("What sense must you live without in Birdbox").white.bright
+     puts Rainbow("What is the name of the hobbit played by Elijah Wood in the Lord of the Rings movies").white.bright
      user_input = gets.chomp
-     if user_input.downcase == "sight"
+     if user_input.downcase == "frodo baggins"
        puts Rainbow("Correct").green.bright
        counter += 1
      else
        puts Rainbow("Wrong").red.bright
      end
-     puts Rainbow("Who plays the lead role in Get Out?").white.bright
+     puts Rainbow("Which 1997 science fiction movie tells the story of a secret agency that polices alien refugees who are living on earth disguised as humans").white.bright
      user_input = gets.chomp
-     if user_input.downcase == "daniel kaluuya"
+     if user_input.downcase == "men in black"
        puts Rainbow("Correct").green.bright
        counter += 1
      else
        puts Rainbow("Wrong").red.bright
      end
-     puts Rainbow("What film features 'redrum'?".reverse).white.bright
+     puts Rainbow("Which Tom Hanks movie won the Academy Award for Best Picture in 1994?").white.bright
      user_input = gets.chomp
-     if user_input.downcase == "the shining".reverse
+     if user_input.downcase == "forrest gump"
        puts Rainbow("Correct").green.bright
        counter += 1
      else
@@ -427,11 +445,12 @@ class CommandLine
      end
      if counter == 5
      puts Rainbow("You need to get out more! You scored #{counter}/5").green.bright
-   elsif counter > 2 && counter < 4
+   elsif counter > 2 && counter < 5
      puts Rainbow("You're on the way to being an expert. You scored #{counter}/5").orange.bright
    else
      puts Rainbow("Terrible! You need to spend more time on our database! You scored #{counter}/5").red.bright
    end
+   return_to_menu
   end
   def drama_quiz
     puts Rainbow("
@@ -443,41 +462,42 @@ class CommandLine
       ##     ## ##    ##  ##     ## ##     ## ##     ##
       ########  ##     ## ##     ## ##     ## ##     ## ").lavender.bright
       counter = 0
-      puts Rainbow("What movie is the character Norman Bates in?").white.bright
+      puts Rainbow("
+In which city was the film 'The Elephant Man' set?").white.bright
       user_input = gets.chomp
-      if user_input.downcase == "psycho"
+      if user_input.downcase == "london"
         puts Rainbow("Correct").green.bright
         counter += 1
       else
         puts Rainbow("Wrong").red.bright
       end
-      puts Rainbow("What movie does a burned madman come from the grave to kill with long sharp 'claws'?").white.bright
+      puts Rainbow("What movie did Leonardo DiCaprio win a long awaited Oscar for?").white.bright
       user_input = gets.chomp
-      if user_input.downcase == "a nightmare on elm street"
+      if user_input.downcase == "the revenant"
         puts Rainbow("Correct").green.bright
         counter += 1
       else
         puts Rainbow("Wrong").red.bright
       end
-      puts Rainbow("What sense must you live without in Birdbox").white.bright
+      puts Rainbow("What year was '12 Years A Slave' released?").white.bright
       user_input = gets.chomp
-      if user_input.downcase == "sight"
+      if user_input.downcase == "2013"
         puts Rainbow("Correct").green.bright
         counter += 1
       else
         puts Rainbow("Wrong").red.bright
       end
-      puts Rainbow("Who plays the lead role in Get Out?").white.bright
+      puts Rainbow("Who played Don Vito Corleone in The Godfather?").white.bright
       user_input = gets.chomp
-      if user_input.downcase == "daniel kaluuya"
+      if user_input.downcase == "marlon brando"
         puts Rainbow("Correct").green.bright
         counter += 1
       else
         puts Rainbow("Wrong").red.bright
       end
-      puts Rainbow("What film features 'redrum'?".reverse).white.bright
+      puts Rainbow("What was the name of the diamond in 'Titanic' that many fans believe helped Gatsby make his wealth in 'The Great Gatsby'").white.bright
       user_input = gets.chomp
-      if user_input.downcase == "the shining".reverse
+      if user_input.downcase == "rose’s heart of the ocean"
         puts Rainbow("Correct").green.bright
         counter += 1
       else
@@ -485,11 +505,12 @@ class CommandLine
       end
       if counter == 5
       puts Rainbow("You need to get out more! You scored #{counter}/5").green.bright
-    elsif counter > 2 && counter < 4
+    elsif counter > 2 && counter < 5
       puts Rainbow("You're on the way to being an expert. You scored #{counter}/5").orange.bright
     else
       puts Rainbow("Terrible! You need to spend more time on our database! You scored #{counter}/5").red.bright
     end
+    return_to_menu
   end
   def animation_quiz
     puts Rainbow("
@@ -502,41 +523,41 @@ _|    _|  _|    _|  _|  _|    _|    _|    _|_|_|      _|_|  _|    _|_|    _|    
 
       ").green.bright
       counter = 0
-      puts Rainbow("What movie is the character Norman Bates in?").white.bright
+      puts Rainbow("How many years were there between the two Incredibles movies?").white.bright
       user_input = gets.chomp
-      if user_input.downcase == "psycho"
+      if user_input.downcase == "14"
         puts Rainbow("Correct").green.bright
         counter += 1
       else
         puts Rainbow("Wrong").red.bright
       end
-      puts Rainbow("What movie does a burned madman come from the grave to kill with long sharp 'claws'?").white.bright
+      puts Rainbow("What yellow family made there way to the big screen in 2007?").white.bright
       user_input = gets.chomp
-      if user_input.downcase == "a nightmare on elm street"
+      if user_input.downcase == "the simpsons"
         puts Rainbow("Correct").green.bright
         counter += 1
       else
         puts Rainbow("Wrong").red.bright
       end
-      puts Rainbow("What sense must you live without in Birdbox").white.bright
+      puts Rainbow("Who played the voice of Buzz Lightyear in the Toy Story collection?").white.bright
       user_input = gets.chomp
-      if user_input.downcase == "sight"
+      if user_input.downcase == "tim allen"
         puts Rainbow("Correct").green.bright
         counter += 1
       else
         puts Rainbow("Wrong").red.bright
       end
-      puts Rainbow("Who plays the lead role in Get Out?").white.bright
+      puts Rainbow("What year was 'Cinderella' released?").white.bright
       user_input = gets.chomp
-      if user_input.downcase == "daniel kaluuya"
+      if user_input.downcase == "1950"
         puts Rainbow("Correct").green.bright
         counter += 1
       else
         puts Rainbow("Wrong").red.bright
       end
-      puts Rainbow("What film features 'redrum'?".reverse).white.bright
+      puts Rainbow("What would a forgetful blue fish suggest if you had a lot of code to do?").white.bright
       user_input = gets.chomp
-      if user_input.downcase == "the shining".reverse
+      if user_input.downcase == "just keep coding"
         puts Rainbow("Correct").green.bright
         counter += 1
       else
@@ -544,11 +565,12 @@ _|    _|  _|    _|  _|  _|    _|    _|    _|_|_|      _|_|  _|    _|_|    _|    
       end
       if counter == 5
       puts Rainbow("You need to get out more! You scored #{counter}/5").green.bright
-    elsif counter > 2 && counter < 4
+    elsif counter > 2 && counter < 5
       puts Rainbow("You're on the way to being an expert. You scored #{counter}/5").orange.bright
     else
       puts Rainbow("Terrible! You need to spend more time on our database! You scored #{counter}/5").red.bright
     end
+    return_to_menu
   end
 
   def quiz
@@ -576,4 +598,3 @@ _|    _|  _|    _|  _|  _|    _|    _|    _|_|_|      _|_|  _|    _|_|    _|    
   #     name.split(", ") == actor
   #   end
   # end
-end
