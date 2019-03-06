@@ -460,7 +460,7 @@ class CommandLine
       ##     ## ########  ##     ## ## ### ## ##     ##
       ##     ## ##   ##   ######### ##     ## #########
       ##     ## ##    ##  ##     ## ##     ## ##     ##
-      ########  ##     ## ##     ## ##     ## ##     ## ").lavender.bright
+      ########  ##     ## ##     ## ##     ## ##     ## ").cyan.bright
       counter = 0
       puts Rainbow("
 In which city was the film 'The Elephant Man' set?").white.bright

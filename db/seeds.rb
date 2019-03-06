@@ -21,5 +21,8 @@ response = RestClient.get(url)
 response_hash = JSON.parse(response)
 
 
+# q1 = Question.create(genre: "horror", question: "")
+
+
 # ma1 = MovieActors.create(movie_id: 1, actor_id: 6)
 # ma2 = MovieActors.create(movie_id: 1, actor_id: 7)
