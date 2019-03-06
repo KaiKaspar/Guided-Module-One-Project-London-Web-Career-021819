@@ -1,7 +1,6 @@
 require 'rest-client'
 require 'json'
 require 'rainbow'
-
 require 'rest-client'
 require 'json'
 
@@ -58,7 +57,7 @@ class CommandLine
     user_input = gets.chomp
     case user_input
     when "1"
-      run
+      run_movie
     when "2"
         #Todo
       puts "Currently not availiable"
@@ -79,30 +78,39 @@ class CommandLine
 
 
   def gets_user_input
-    puts Rainbow("\n    Search a movie to get a quick description:").white.bright
-    # puts "We can help you find which genre a movie is."
-    # puts "Enter a movie to get started:"
+    puts Rainbow("\n    Search:").white.bright
     find_movie = gets.chomp
   end
-  #
-  # def add_movie
-  #   movie_hash = json_url(name)
-  #   Movie.create(title: movie_hash["Title"], genre: movie_hash["Genre"], release_date: movie_hash["Year"], plot: movie_hash["Plot"], all_actors_names: movie_hash["Actors"])
-  # end
+
 
   def find_or_create(input)
     movie_hash = json_url(input)
-    Movie.find_or_create_by(title: movie_hash["Title"], genre: movie_hash["Genre"], release_date: movie_hash["Year"], plot: movie_hash["Plot"], all_actors_names: movie_hash["Actors"])
+    movie = Movie.find_or_create_by(title: movie_hash["Title"], genre: movie_hash["Genre"], release_date: movie_hash["Year"], plot: movie_hash["Plot"], all_actors_names: movie_hash["Actors"])
+    movie_hash["Actors"].split(", ").each do |actor|
+      actor = Actor.find_or_create_by(name: actor)
+      MovieActors.create(movie_id: movie.id, actor_id: actor.id)
+    end
+    puts Rainbow("   🎬 " + movie.title + " 🎬").red.bright
+    puts Rainbow("GENRE: " + movie.genre).cyan.bright
+    puts Rainbow(movie.plot).white.bright
+    puts Rainbow("Starring: " + movie.all_actors_names).magenta.bright
+  end
+
+  def find_all_movies_for_actor
+    input = gets_user_input
+    movie_hash = json_url(input)
+    movie = Movie.find_or_create_by(title: movie_hash["Title"], genre: movie_hash["Genre"], release_date: movie_hash["Year"], plot: movie_hash["Plot"], all_actors_names: movie_hash["Actors"])
+    movie_hash["Actors"].split(", ").each do |actor|
+      actor = Actor.find_or_create_by(name: actor)
+      MovieActors.create(movie_id: movie.id, actor_id: actor.id)
+    binding.pry
     end
   end
 
-  def run
+
+  def run_movie
     input = gets_user_input
-    x = find_or_create(input)
-    puts Rainbow("   🎬 " + x.title + " 🎬").red.bright
-    puts Rainbow("GENRE: " + x.genre).cyan.bright
-    puts Rainbow(x.plot).white.bright
-    puts Rainbow("Starring: " + x.all_actors_names).magenta.bright
+    find_or_create(input)
     return_to_menu
   end
 
@@ -352,7 +360,7 @@ class CommandLine
                                                 else
                                                   puts Rainbow("Wrong").red.bright
                                                 end
-                                                puts Rainbow("What is Napoleon Dynamite’s favorite sport??").white.bright
+                                                puts Rainbow("What is Napoleon Dynamite’s favorite sport?").white.bright
                                                 user_input = gets.chomp
                                                 if user_input.downcase == "tetherball"
                                                   puts Rainbow("Correct").green.bright
@@ -597,4 +605,4 @@ _|    _|  _|    _|  _|  _|    _|    _|    _|_|_|      _|_|  _|    _|_|    _|    
   #   movie_actors = find_actors_for_movie.select do |title, name|
   #     name.split(", ") == actor
   #   end
-  # end
+end
