@@ -1,4 +1,4 @@
-class MovieActors < ActiveRecord::Base
-  belongs_to :movies
-  belongs_to :actors
+class MovieActor < ActiveRecord::Base
+  belongs_to :movie
+  belongs_to :actor
 end

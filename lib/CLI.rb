@@ -1,8 +1,7 @@
 require 'rest-client'
 require 'json'
 require 'rainbow'
-require 'rest-client'
-require 'json'
+
 
 url = "http://www.omdbapi.com/?i=tt3896198&apikey=dc2f1dca"
 response = RestClient.get(url)
@@ -46,11 +45,9 @@ class CommandLine
   def menu
     puts Rainbow("    Please select an option by typing the corresponding number:\n
       1| Search a movie
-      2| Search an actor
-      3| Search a genre
-      4| Search highest rated movies
-      5| Test your movie knowledge!
-      6| Quit").white.bright
+      2| Search movies for a actor
+      3| Test your movie knowledge!
+      4| Quit").white.bright
   end
 
   def menu_choice
@@ -59,17 +56,10 @@ class CommandLine
     when "1"
       run_movie
     when "2"
-        #Todo
-      puts "Currently not availiable"
+      all_movies_for_actor
     when "3"
-        #Todo
-      puts "Currently not availiable"
-    when "4"
-        #Todo
-      puts "Currently not availiable"
-    when "5"
       quiz_genre
-    when "6"
+    when "4"
         abort
     else puts "Invalid please try again"
       return_to_menu
@@ -88,7 +78,7 @@ class CommandLine
     movie = Movie.find_or_create_by(title: movie_hash["Title"], genre: movie_hash["Genre"], release_date: movie_hash["Year"], plot: movie_hash["Plot"], all_actors_names: movie_hash["Actors"])
     movie_hash["Actors"].split(", ").each do |actor|
       actor = Actor.find_or_create_by(name: actor)
-      MovieActors.create(movie_id: movie.id, actor_id: actor.id)
+      MovieActor.create(movie_id: movie.id, actor_id: actor.id)
     end
     puts Rainbow("   🎬 " + movie.title + " 🎬").red.bright
     puts Rainbow("GENRE: " + movie.genre).cyan.bright
@@ -96,16 +86,36 @@ class CommandLine
     puts Rainbow("Starring: " + movie.all_actors_names).magenta.bright
   end
 
-  def find_all_movies_for_actor
-    input = gets_user_input
-    movie_hash = json_url(input)
-    movie = Movie.find_or_create_by(title: movie_hash["Title"], genre: movie_hash["Genre"], release_date: movie_hash["Year"], plot: movie_hash["Plot"], all_actors_names: movie_hash["Actors"])
-    movie_hash["Actors"].split(", ").each do |actor|
-      actor = Actor.find_or_create_by(name: actor)
-      MovieActors.create(movie_id: movie.id, actor_id: actor.id)
-    binding.pry
-    end
+def all_movies_for_actor
+  puts Rainbow("\n    Search:").white.bright
+  input = gets.chomp
+
+   af1 = Actor.find_by(name: input)
+   af1.movies
+   af1.movies.each do |movie|
+     puts Rainbow("   🎬 " + movie.title + " 🎬").red.bright
+     puts Rainbow("GENRE: " + movie.genre).cyan.bright
+     puts Rainbow(movie.plot).white.bright
   end
+  return_to_menu
+end
+
+# def all_movies_for_actor
+#   puts Rainbow("\n    Search:").white.bright
+#   self.movie
+# end
+
+
+  # def find_all_movies_for_actor
+  #   input = gets_user_input
+  #   movie_hash = json_url(input)
+  #   movie = Movie.find_or_create_by(title: movie_hash["Title"], genre: movie_hash["Genre"], release_date: movie_hash["Year"], plot: movie_hash["Plot"], all_actors_names: movie_hash["Actors"])
+  #   movie_hash["Actors"].split(", ").each do |actor|
+  #     actor = Actor.find_or_create_by(name: actor)
+  #     MovieActors.create(movie_id: movie.id, actor_id: actor.id)
+  #   binding.pry
+  #   end
+  # end
 
 
   def run_movie
@@ -181,7 +191,7 @@ class CommandLine
     else
       puts Rainbow("Wrong").red.bright
     end
-    puts Rainbow("What sense must you live without in Birdbox").white.bright
+    puts Rainbow("What sense must you live without in Bird Box").white.bright
     user_input = gets.chomp
     if user_input.downcase == "sight"
       puts Rainbow("Correct").green.bright
