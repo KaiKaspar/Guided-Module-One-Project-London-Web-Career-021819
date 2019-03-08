@@ -10,6 +10,8 @@ response_hash = JSON.parse(response)
 
 class CommandLine
 
+prompt = TTY::Prompt.new
+
   def json_url(name)
     search_name = name.sub(" ", "+")
     url = "http://www.omdbapi.com/?t=#{search_name}&apikey=dc2f1dca"
@@ -18,12 +20,17 @@ class CommandLine
   end
 
   def return_to_menu
-    puts Rainbow("\nWould you like to return to the menu? type 'y' for yes or 'n' for no.").white.bright
-    answer = gets.chomp
-    if answer.downcase == "y"
-      menu
-      menu_choice
-    else
+    puts Rainbow("\nWould you like to return to the menu?").white.bright
+    prompt = TTY::Prompt.new
+  choices = [
+  { name: Rainbow('Yes').green.bright},
+  { name: Rainbow('No').red.bright}
+]
+answer = prompt.select("Select option", choices, cycle: true)
+    if  answer == Rainbow('Yes').green.bright
+        menu
+        menu_choice
+    elsif answer == Rainbow('No').red.bright
       abort
     end
   end
@@ -40,33 +47,31 @@ class CommandLine
   puts Rainbow("\n    Welcome to MovieFinder, the command line solution to for your Movie-finding needs!\n").white.bright
   end
 
-  def menu
-    puts Rainbow("    Please select an option by typing the corresponding number:\n
-      1| Search a movie
-      2| Search movies for a actor
-      3| See top 10 movies
-      4| See top 10 actors
-      5| Quiz!
-      6| Quit").white.bright
-  end
 
-  def menu_choice
-    user_input = gets.chomp
-    case user_input
-    when "1"
+
+  def menu
+    prompt = TTY::Prompt.new
+  choices = [
+  { name: Rainbow('Search a movie').white.bright},
+  { name: Rainbow('Search movies for a actor').white.bright},
+  { name: Rainbow('See top 10 movies').white.bright},
+  { name: Rainbow('See top 10 actors').white.bright},
+  { name: Rainbow('Quiz!').white.bright},
+  { name: Rainbow('Quit').white.bright}
+]
+answer = prompt.select("Select option", choices, cycle: true)
+    if  answer == Rainbow('Search a movie').white.bright
       run_movie
-    when "2"
+    elsif answer == Rainbow('Search movies for a actor').white.bright
       all_movies_for_actor
-    when "3"
+    elsif answer == Rainbow('See top 10 movies').white.bright
       top_10_movies
-    when "4"
+    elsif answer == Rainbow('See top 10 actors').white.bright
       top_10_actors
-    when "5"
+    elsif answer == Rainbow('Quiz!').white.bright
       quiz_genre
-    when "6"
+    elsif answer == Rainbow('Quit').white.bright
         abort
-    else puts "Invalid please try again"
-      return_to_menu
     end
   end
 
@@ -140,18 +145,23 @@ def plus_10
   count = 0
   ranking = 10
   puts Rainbow("Do you want to see the next 10?").cyan.bright
-  input = gets.chomp
-  if input.downcase == "y"
+  prompt = TTY::Prompt.new
+choices = [
+{ name: Rainbow('Yes').green.bright},
+{ name: Rainbow('No').red.bright}
+]
+answer = prompt.select("Select option", choices, cycle: true)
+  if  answer == Rainbow('Yes').green.bright
     movie_rating = Movie.all
     test = movie_rating.max_by(ranking+=10) do |hash|
       hash[:rating]
-  end
+    end
     test.select do |movie|
       count += 1
       score = Rainbow(movie[:rating]).green.bright
       puts Rainbow("#{count}. " + movie[:title] + "   " + score).white.bright
     end
-  else
+  elsif answer == Rainbow('No').red.bright
     return_to_menu
   end
 end
@@ -181,17 +191,22 @@ def plus_10_actor
   count = 0
   ranking = 10
   puts Rainbow("Do you want to see the next 10?").cyan.bright
-  input = gets.chomp
-  if input.downcase == "y"
+  prompt = TTY::Prompt.new
+choices = [
+{ name: Rainbow('Yes').green.bright},
+{ name: Rainbow('No').red.bright}
+]
+answer = prompt.select("Select option", choices, cycle: true)
+  if  answer == Rainbow('Yes').green.bright
     test = all_actor_ratings.max_by(ranking+=10) do |hash|
       hash[:avg_rating]
-  end
+    end
     test.select do |actor|
       count += 1
       score = Rainbow(actor[:avg_rating]).green.bright
       puts Rainbow("#{count}. " + actor[:name] + "   " + score).white.bright
     end
-  else
+  elsif answer == Rainbow('No').red.bright
     return_to_menu
   end
 end
@@ -203,39 +218,38 @@ end
   end
 
   def quiz_genre
+    prompt = TTY::Prompt.new
     puts Rainbow("    Test your knowledge and choose a catagory or if your feeling brave try out ultimate quiz!
           Please select an option by typing the corresponding number:").red.bright
-    puts Rainbow("
-      1| Horror 🧟
-      2| Comedy 🤣
-      3| Action 🚓
-      4| Sci-Fi 🦸‍
-      5| Drama 😱
-      6| Animation 🧞
-      7| All 🎥
-      8| Quit").white.bright
-      user_input = gets.chomp
-      case user_input
-      when "1"
-        horror_quiz
-      when "2"
-        comedy_quiz
-      when "3"
-        action_quiz
-      when "4"
-        sci_fi_quiz
-      when "5"
-        drama_quiz
-      when "6"
-        animation_quiz
-      when "7"
-        all_quiz
-      when "8"
-        menu
-        menu_choice
-      else puts "Invalid please try again"
-        quiz_genre
-      end
+  choices = [
+  { name: Rainbow('Horror 🧟').white.bright},
+  { name: Rainbow('Comedy 🤣').white.bright},
+  { name: Rainbow('Action 🚓').white.bright},
+  { name: Rainbow('Sci-Fi 🦸‍').white.bright},
+  { name: Rainbow('Drama 😱').white.bright},
+  { name: Rainbow('Animation 🧞').white.bright},
+  { name: Rainbow('All 🎥').white.bright},
+  { name: Rainbow('Quit').white.bright}
+]
+answer = prompt.select("Select option", choices, cycle: true)
+    if  answer == Rainbow('Horror 🧟').white.bright
+      horror_quiz
+    elsif answer == Rainbow('Comedy 🤣').white.bright
+      comedy_quiz
+    elsif answer == Rainbow('Action 🚓').white.bright
+      action_quiz
+    elsif answer == Rainbow('Sci-Fi 🦸‍').white.bright
+      sci_fi_quiz
+    elsif answer == Rainbow('Drama 😱').white.bright
+      drama_quiz
+    elsif answer == Rainbow('Animation 🧞').white.bright
+      animation_quiz
+    elsif answer == Rainbow('All 🎥').white.bright
+      all_quiz
+    elsif answer == Rainbow('Quit').white.bright
+      menu
+      menu_choice
+    end
   end
 
   def horror_quiz
@@ -267,7 +281,7 @@ end
     else
       puts Rainbow("Wrong").red.bright
     end
-    puts Rainbow("What sense must you live without in Bird Box").white.bright
+    puts Rainbow("What sense must you live without in Bird Box?").white.bright
     user_input = gets.chomp
     if user_input.downcase == "sight"
       puts Rainbow("Correct").green.bright
@@ -394,7 +408,7 @@ end
                                                                               else
                                                                                 puts Rainbow("Wrong").red.bright
                                                                               end
-                                                                              puts Rainbow("What film features Keanu Reeves in a long leather black jacket").white.bright
+                                                                              puts Rainbow("What film features Keanu Reeves in a long leather black jacket?").white.bright
                                                                               user_input = gets.chomp
                                                                               if user_input.downcase == "the matrix"
                                                                                 puts Rainbow("Correct").green.bright
@@ -462,7 +476,7 @@ end
                                                 else
                                                   puts Rainbow("Wrong").red.bright
                                                 end
-                                                puts Rainbow("What nationality is Borat").white.bright
+                                                puts Rainbow("What nationality is Borat?").white.bright
                                                 user_input = gets.chomp
                                                 if user_input.downcase == "kazakhstan"
                                                   puts Rainbow("Correct").green.bright
@@ -513,7 +527,7 @@ end
      else
        puts Rainbow("Wrong").red.bright
      end
-     puts Rainbow("What is the name of the hobbit played by Elijah Wood in the Lord of the Rings movies").white.bright
+     puts Rainbow("What is the name of the hobbit played by Elijah Wood in the Lord of the Rings movies?").white.bright
      user_input = gets.chomp
      if user_input.downcase == "frodo baggins"
        puts Rainbow("Correct").green.bright
@@ -521,7 +535,7 @@ end
      else
        puts Rainbow("Wrong").red.bright
      end
-     puts Rainbow("Which 1997 science fiction movie tells the story of a secret agency that polices alien refugees who are living on earth disguised as humans").white.bright
+     puts Rainbow("Which 1997 science fiction movie tells the story of a secret agency that polices alien refugees who are living on earth disguised as humans?").white.bright
      user_input = gets.chomp
      if user_input.downcase == "men in black"
        puts Rainbow("Correct").green.bright
