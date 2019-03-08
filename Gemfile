@@ -8,3 +8,4 @@ gem "require_all"
 gem 'rest-client'
 gem 'rainbow'
 gem "json"
+gem 'tty-prompt'

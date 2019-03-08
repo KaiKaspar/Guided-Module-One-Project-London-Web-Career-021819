@@ -9,8 +9,8 @@ response_hash = JSON.parse(response)
 
 
 class CommandLine
+
   def json_url(name)
-    # name = gets.chomp
     search_name = name.sub(" ", "+")
     url = "http://www.omdbapi.com/?t=#{search_name}&apikey=dc2f1dca"
     response = RestClient.get(url)
@@ -18,14 +18,12 @@ class CommandLine
   end
 
   def return_to_menu
-    puts Rainbow("Would you like to return to the menu? type 'y' for yes or 'n' for no.").white.bright
+    puts Rainbow("\nWould you like to return to the menu? type 'y' for yes or 'n' for no.").white.bright
     answer = gets.chomp
-          # binding.pry
     if answer.downcase == "y"
       menu
       menu_choice
     else
-      # binding.pry
       abort
     end
   end
@@ -46,8 +44,10 @@ class CommandLine
     puts Rainbow("    Please select an option by typing the corresponding number:\n
       1| Search a movie
       2| Search movies for a actor
-      3| Test your movie knowledge!
-      4| Quit").white.bright
+      3| See top 10 movies
+      4| See top 10 actors
+      5| Quiz!
+      6| Quit").white.bright
   end
 
   def menu_choice
@@ -58,8 +58,12 @@ class CommandLine
     when "2"
       all_movies_for_actor
     when "3"
-      quiz_genre
+      top_10_movies
     when "4"
+      top_10_actors
+    when "5"
+      quiz_genre
+    when "6"
         abort
     else puts "Invalid please try again"
       return_to_menu
@@ -72,10 +76,9 @@ class CommandLine
     find_movie = gets.chomp
   end
 
-
   def find_or_create(input)
     movie_hash = json_url(input)
-    movie = Movie.find_or_create_by(title: movie_hash["Title"], genre: movie_hash["Genre"], release_date: movie_hash["Year"], plot: movie_hash["Plot"], all_actors_names: movie_hash["Actors"])
+    movie = Movie.find_or_create_by(title: movie_hash["Title"], genre: movie_hash["Genre"], release_date: movie_hash["Year"], plot: movie_hash["Plot"], all_actors_names: movie_hash["Actors"], rating: movie_hash["imdbRating"])
     movie_hash["Actors"].split(", ").each do |actor|
       actor = Actor.find_or_create_by(name: actor)
       MovieActor.create(movie_id: movie.id, actor_id: actor.id)
@@ -86,45 +89,118 @@ class CommandLine
     puts Rainbow("Starring: " + movie.all_actors_names).magenta.bright
   end
 
-def all_movies_for_actor
-  puts Rainbow("\n    Search:").white.bright
-  input = gets.chomp
-
-   af1 = Actor.find_by(name: input)
-   af1.movies
-   af1.movies.each do |movie|
-     puts Rainbow("   🎬 " + movie.title + " 🎬").red.bright
-     puts Rainbow("GENRE: " + movie.genre).cyan.bright
-     puts Rainbow(movie.plot).white.bright
+  def all_movies_for_actor
+    puts Rainbow("\n    Search:").white.bright
+    input = gets.chomp
+     af1 = Actor.find_by(name: input)
+     af1.movies
+     af1.movies.each do |movie|
+       puts Rainbow("   🎬 " + movie.title + " 🎬").red.bright
+       puts Rainbow("GENRE: " + movie.genre).cyan.bright
+       puts Rainbow(movie.plot).white.bright
+    end
+    return_to_menu
   end
-  return_to_menu
+
+  def ratings_for_actor(input)
+     af1 = Actor.find_by(name: input)
+     af1.movies
+     binding.pry
+      af1.movies.collect do |movie|
+         movie.rating
+    end
+    binding.pry
+  end
+
+  def average_ratings_for_actor
+    puts Rainbow("\n    Search:").white.bright
+    input = gets.chomp
+    total = ratings_for_actor(input).inject(:+)
+    average = total / ratings_for_actor(input).length.to_f
+    puts average.round(2)
+  end
+
+  def top_10_movies
+    movie_rating = Movie.all
+    test = movie_rating.max_by(10) do |hash|
+      hash[:rating]
+  end
+  ranking = 10
+  count = 0
+    test.select do |movie|
+      count += 1
+      score = Rainbow(movie[:rating]).green.bright
+      puts Rainbow("#{count}. " + movie[:title] + "   " + score).white.bright
+    end
+    plus_10
+    return_to_menu
 end
 
-# def all_movies_for_actor
-#   puts Rainbow("\n    Search:").white.bright
-#   self.movie
-# end
+def plus_10
+  count = 0
+  ranking = 10
+  puts Rainbow("Do you want to see the next 10?").cyan.bright
+  input = gets.chomp
+  if input.downcase == "y"
+    movie_rating = Movie.all
+    test = movie_rating.max_by(ranking+=10) do |hash|
+      hash[:rating]
+  end
+    test.select do |movie|
+      count += 1
+      score = Rainbow(movie[:rating]).green.bright
+      puts Rainbow("#{count}. " + movie[:title] + "   " + score).white.bright
+    end
+  else
+    return_to_menu
+  end
+end
 
+  def all_actor_ratings
+    actors_with_average_rating = Actor.all.map do |actor|
+      avg = actor.movies.inject(0){|acc, i|  acc + i.rating}
+      {name: actor.name, avg_rating: (avg / actor.movies.length).round(2)}
+    end
+end
 
-  # def find_all_movies_for_actor
-  #   input = gets_user_input
-  #   movie_hash = json_url(input)
-  #   movie = Movie.find_or_create_by(title: movie_hash["Title"], genre: movie_hash["Genre"], release_date: movie_hash["Year"], plot: movie_hash["Plot"], all_actors_names: movie_hash["Actors"])
-  #   movie_hash["Actors"].split(", ").each do |actor|
-  #     actor = Actor.find_or_create_by(name: actor)
-  #     MovieActors.create(movie_id: movie.id, actor_id: actor.id)
-  #   binding.pry
-  #   end
-  # end
+  def top_10_actors
+    test = all_actor_ratings.max_by(10) do |hash|
+      hash[:avg_rating]
+  end
+  count = 0
+    test.select do |actor|
+      count += 1
+      score = Rainbow(actor[:avg_rating]).green.bright
+      puts Rainbow("#{count}. " + actor[:name] + "   " + score).white.bright
+    end
+    plus_10_actor
+    return_to_menu
+end
 
+def plus_10_actor
+  count = 0
+  ranking = 10
+  puts Rainbow("Do you want to see the next 10?").cyan.bright
+  input = gets.chomp
+  if input.downcase == "y"
+    test = all_actor_ratings.max_by(ranking+=10) do |hash|
+      hash[:avg_rating]
+  end
+    test.select do |actor|
+      count += 1
+      score = Rainbow(actor[:avg_rating]).green.bright
+      puts Rainbow("#{count}. " + actor[:name] + "   " + score).white.bright
+    end
+  else
+    return_to_menu
+  end
+end
 
   def run_movie
     input = gets_user_input
     find_or_create(input)
     return_to_menu
   end
-
-
 
   def quiz_genre
     puts Rainbow("    Test your knowledge and choose a catagory or if your feeling brave try out ultimate quiz!
@@ -591,28 +667,12 @@ _|    _|  _|    _|  _|  _|    _|    _|    _|_|_|      _|_|  _|    _|_|    _|    
     return_to_menu
   end
 
-  def quiz
-
-
+  def all_actors_for_movie
+    puts "Search a movie to find all the actors who featured;"
+    input = gets.chomp
+    movie = Movie.find_by(title: input)
+    movie.actors.each do |actor|
+      puts actor.name
+    end
   end
-
-  # def all_movies_with_actors
-  #   @all = all_movies_with_actors
-  #   @all.each do |title, actors|
-  #     puts "#{title}; #{actors}"
-  #   end
-  #   @all
-  # end
-
-  # def find_movies_for_actor
-  #   input = gets_user_input
-  #   actor_movies = movies.select do |title, name|
-  #     name.split(", ") == actor
-  #   end
-  # end
-  #
-  # def find_actors_for_movie(movie)
-  #   movie_actors = find_actors_for_movie.select do |title, name|
-  #     name.split(", ") == actor
-  #   end
 end
